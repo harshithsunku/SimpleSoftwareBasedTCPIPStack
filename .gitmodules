@@ -1,0 +1,8 @@
+[submodule "GenericEmbeddableDoublyLinkedList"]
+    path = GenericEmbeddableDoublyLinkedList
+	url = https://github.com/harshithsunku/GenericEmbeddableDoublyLinkedList
+
+[submodule "ThreadSafeCLogger"]
+    path = ThreadSafeCLogger
+	url = https://github.com/harshithsunku/ThreadSafeCLogger
+
