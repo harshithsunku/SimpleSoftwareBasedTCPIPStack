@@ -82,4 +82,8 @@ void dump_nw_graph(graph_t *graph);
 void dump_node_nw_props(node_t *node);
 void dump_intf_props(interface_t *interface);
   
+
+interface_t *
+node_get_matching_subnet_interface(node_t *node, char *ip_addr);   
+
 #endif /* __NET__ */

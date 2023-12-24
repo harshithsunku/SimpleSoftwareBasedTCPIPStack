@@ -5,7 +5,7 @@ CFLAGS := -Wall -Wextra -pedantic
 DEBUG_FLAGS := -g
 RELEASE_FLAGS := -O2
 LDFLAGS := -lpthread
-INCLUDES := -I GenericEmbeddableDoublyLinkedList/ -I ThreadSafeCLogger/ -I infra/ -I common/
+INCLUDES := -I GenericEmbeddableDoublyLinkedList/ -I ThreadSafeCLogger/ -I infra/ -I common/ -I l3/ -I l2/
 TARGET := main
 OBJ_DIR := obj
 DEP_DIR := deps
@@ -20,7 +20,9 @@ SRCS := $(wildcard *.c) \
         $(wildcard GenericEmbeddableDoublyLinkedList/*.c) \
         $(wildcard ThreadSafeCLogger/*.c) \
         $(wildcard infra/*.c) \
-        $(wildcard common/*.c)
+        $(wildcard common/*.c) \
+		$(wildcard l3/*.c) \
+		$(wildcard l2/*.c) 
 
 # Define patterns to exclude
 EXCLUDE_PATTERNS := GenericEmbeddableDoublyLinkedList/main.c ThreadSafeCLogger/main.c
@@ -34,7 +36,7 @@ RELEASE_OBJS := $(patsubst %.c,$(OBJ_DIR)/release/%.o,$(notdir $(FILTERED_SRCS))
 DEPS := $(patsubst %.o,$(DEP_DIR)/%.d,$(DEBUG_OBJS) $(RELEASE_OBJS))
 
 # Specify directories to look for source files
-VPATH := GenericEmbeddableDoublyLinkedList:ThreadSafeCLogger:infra:common
+VPATH := GenericEmbeddableDoublyLinkedList:ThreadSafeCLogger:infra:common:l3:l2
 
 # Default build both debug and release
 all: debug release
