@@ -18,7 +18,8 @@ int main()
     log_write(LOG_LEVEL_INFO, "Application started");
 
     graph_t *topo = build_first_topo();
-    dump_graph(topo);
+    //dump_graph(topo);
+    dump_nw_graph(topo);
 
     // Write a log message indicating the application is ending
     log_write(LOG_LEVEL_INFO, "Application ending");

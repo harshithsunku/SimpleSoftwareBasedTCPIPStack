@@ -5,6 +5,7 @@
 #include "network_graph.h"
 #include "logger.h"
 
+
 void
 insert_link_between_two_nodes(node_t *node1,
         node_t *node2,
@@ -35,6 +36,11 @@ insert_link_between_two_nodes(node_t *node1,
 
     empty_intf_slot = get_node_intf_available_slot(node2);
     node2->intf[empty_intf_slot] = &link->intf2;
+
+    /*Now Assign Random generated Mac address to the Interfaces*/
+    interface_assign_mac_address(&link->intf1);                                                                                                                                                          
+    interface_assign_mac_address(&link->intf2);
+
 }
 
 graph_t *
@@ -96,5 +102,5 @@ void dump_interface(interface_t *interface){
     printf("    |-> Local Node : %s\n", interface->att_node->node_name);
     printf("        Interface Name = %s\n", interface->if_name);
     printf("        Nbr Node %s, cost = %u\n", nbr_node->node_name, link->cost); 
-    printf("    ----------------------------------\n");
+    // printf("    ----------------------------------\n");
 }
