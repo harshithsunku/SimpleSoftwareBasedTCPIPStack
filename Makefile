@@ -5,7 +5,7 @@ CFLAGS := -Wall -Wextra -pedantic
 DEBUG_FLAGS := -g
 RELEASE_FLAGS := -O2
 LDFLAGS := -lpthread
-INCLUDES := -I GenericEmbeddableDoublyLinkedList/ -I ThreadSafeCLogger/ -I infra/ -I common/ -I l3/ -I l2/
+INCLUDES := -I GenericEmbeddableDoublyLinkedList/ -I ThreadSafeCLogger/ -I infra/ -I common/ -I l3/ -I l2/ -I CommandParser/
 TARGET := main
 OBJ_DIR := obj
 DEP_DIR := deps
@@ -14,6 +14,14 @@ DEP_DIR := deps
 RED := \033[0;31m
 GREEN := \033[0;32m
 NC := \033[0m # No Color
+
+# CommandParser directory
+COMMAND_PARSER_DIR := CommandParser
+COMMAND_PARSER_EXCLUDES := CommandParser/main1.c CommandParser/main2.c CommandParser/main3.c CommandParser/main4.c CommandParser/testapp.c
+
+# Adjusted object files list for libcli, excluding specified files
+LIBCLI_OBJS := $(patsubst %.c,%.o,$(filter-out $(COMMAND_PARSER_EXCLUDES), $(wildcard $(COMMAND_PARSER_DIR)/*.c $(COMMAND_PARSER_DIR)/gluethread/*.c $(COMMAND_PARSER_DIR)/ut/utinfra/*.c)))
+
 
 # Gather all source files from specified directories
 SRCS := $(wildcard *.c) \
@@ -25,7 +33,7 @@ SRCS := $(wildcard *.c) \
 		$(wildcard l2/*.c) 
 
 # Define patterns to exclude
-EXCLUDE_PATTERNS := GenericEmbeddableDoublyLinkedList/main.c ThreadSafeCLogger/main.c
+EXCLUDE_PATTERNS := GenericEmbeddableDoublyLinkedList/main.c ThreadSafeCLogger/main.c 
 
 # Filter out the excluded files
 FILTERED_SRCS := $(filter-out $(EXCLUDE_PATTERNS), $(SRCS))
@@ -36,7 +44,7 @@ RELEASE_OBJS := $(patsubst %.c,$(OBJ_DIR)/release/%.o,$(notdir $(FILTERED_SRCS))
 DEPS := $(patsubst %.o,$(DEP_DIR)/%.d,$(DEBUG_OBJS) $(RELEASE_OBJS))
 
 # Specify directories to look for source files
-VPATH := GenericEmbeddableDoublyLinkedList:ThreadSafeCLogger:infra:common:l3:l2
+VPATH := GenericEmbeddableDoublyLinkedList:ThreadSafeCLogger:infra:common:l3:l2:CommandParser
 
 # Default build both debug and release
 all: debug release
@@ -49,17 +57,25 @@ debug: $(OBJ_DIR)/debug/$(TARGET)
 release: CFLAGS += $(RELEASE_FLAGS)
 release: $(OBJ_DIR)/release/$(TARGET)
 
+# Target to build the libcli library
+libcli: $(LIBCLI_OBJS)
+	ar rcs $(COMMAND_PARSER_DIR)/libcli.a $(LIBCLI_OBJS)
+
+# Rule to compile CommandParser source files
+$(COMMAND_PARSER_DIR)/%.o: $(COMMAND_PARSER_DIR)/%.c
+	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+
 # Target to build the executable for debug
-$(OBJ_DIR)/debug/$(TARGET): $(DEBUG_OBJS)
+$(OBJ_DIR)/debug/$(TARGET): $(DEBUG_OBJS) libcli
 	@echo "${GREEN}Building debug target: $@${NC}"
-	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
+	$(CC) $(CFLAGS) $(DEBUG_OBJS) -o $@ $(LDFLAGS) -L$(COMMAND_PARSER_DIR) -lcli
 	@echo "${GREEN}Debug build complete. Creating symlink to debug executable.${NC}\n"
 	@cp $(OBJ_DIR)/debug/$(TARGET) $(TARGET)-debug
 
 # Target to build the executable for release
-$(OBJ_DIR)/release/$(TARGET): $(RELEASE_OBJS)
+$(OBJ_DIR)/release/$(TARGET): $(RELEASE_OBJS) libcli
 	@echo "${GREEN}Building release target: $@${NC}"
-	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
+	$(CC) $(CFLAGS) $(RELEASE_OBJS) -o $@ $(LDFLAGS) -L$(COMMAND_PARSER_DIR) -lcli
 	@echo "${GREEN}Release build complete. Creating symlink to release executable.${NC}\n"
 	@cp $(OBJ_DIR)/release/$(TARGET) $(TARGET)-release
 
@@ -85,6 +101,8 @@ clean:
 	@echo "${RED}Cleaning up...${NC}"
 	rm -rf $(OBJ_DIR) $(DEP_DIR)
 	rm -f $(TARGET)-debug $(TARGET)-release
+	rm -rf $(COMMAND_PARSER_DIR)/*.o
+	rm -f $(COMMAND_PARSER_DIR)/libcli.a
 	@echo "${RED}Clean complete.${NC}\n"
 
 # Help target
