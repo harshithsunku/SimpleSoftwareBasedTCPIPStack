@@ -4,6 +4,7 @@
 #include "dll.h"
 #include "network_graph.h"
 #include "logger.h"
+#include "communication.h"
 
 
 void
@@ -17,9 +18,9 @@ insert_link_between_two_nodes(node_t *node1,
 
     /*Set interface properties*/
     strncpy(link->intf1.if_name, from_if_name, IF_NAME_SIZE);
-    link->intf1.if_name[IF_NAME_SIZE] = '\0';
+    link->intf1.if_name[IF_NAME_SIZE - 1] = '\0';
     strncpy(link->intf2.if_name, to_if_name, IF_NAME_SIZE);
-    link->intf2.if_name[IF_NAME_SIZE] = '\0';
+    link->intf2.if_name[IF_NAME_SIZE - 1] = '\0';
     
     link->intf1.link= link; /*set back pointer to link*/
     link->intf2.link= link; /*set back pointer to link*/
@@ -48,7 +49,7 @@ create_new_graph(char *topology_name){
 
     graph_t *graph = calloc(1, sizeof(graph_t));
     strncpy(graph->topology_name, topology_name, 32);
-    graph->topology_name[32] = '\0';
+    graph->topology_name[31] = '\0';
 
     dll_init(&graph->dll_unit_list);
     return graph;
@@ -59,8 +60,10 @@ create_graph_node(graph_t *graph, char *node_name){
 
     node_t *node = calloc(1, sizeof(node_t));
     strncpy(node->node_name, node_name, NODE_NAME_SIZE);
-    node->node_name[NODE_NAME_SIZE] = '\0';
-
+    node->node_name[NODE_NAME_SIZE - 1] = '\0';
+    
+    init_udp_socket(node);
+    init_node_nw_prop(&node->node_nw_prop);
     dll_init(&node->dll_unit);
     dll_insert_after(&graph->dll_unit_list, &node->dll_unit);
     return node;
@@ -85,6 +88,8 @@ void dump_node(node_t *node){
     interface_t *intf;
 
     printf("  Node Name = %s :\n", node->node_name);
+    printf("  UDP Port Number = %d :\n", node->udp_port_number);
+    printf("  UDP Socket FD = %d :\n", node->udp_sock_fd);
     printf("  --------------------------------------\n");
 
     for( ; i < MAX_INTF_PER_NODE; i++){

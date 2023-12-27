@@ -47,7 +47,7 @@ bool_t node_set_loopback_address(node_t *node, char *ip_addr){
 
     node->node_nw_prop.is_lb_addr_config = TRUE;
     strncpy(NODE_LO_ADDR(node), ip_addr, 16);
-    NODE_LO_ADDR(node)[16] = '\0';
+    NODE_LO_ADDR(node)[15] = '\0';
     
     return TRUE;
 }
@@ -59,7 +59,7 @@ bool_t node_set_intf_ip_address(node_t *node, char *local_if,
     if(!interface) assert(0);
 
     strncpy(IF_IP(interface), ip_addr, 16);
-    IF_IP(interface)[16] = '\0';
+    IF_IP(interface)[15] = '\0';
     interface->intf_nw_props.mask = mask; 
     interface->intf_nw_props.is_ipadd_config = TRUE;
     return TRUE;
@@ -73,7 +73,9 @@ bool_t node_unset_intf_ip_address(node_t *node, char *local_if){
 void dump_node_nw_props(node_t *node){
     printf("\n");
     printf("  ========================================\n");
-    printf("  Node Name = %s :\n", node->node_name);
+    printf("  Node Name = %s :\n\n", node->node_name);
+    printf("  UDP Port Number = %d \n", node->udp_port_number);
+    printf("  UDP Socket FD = %d \n", node->udp_sock_fd);
     printf("  --------------------------------------\n");
     printf("\tnode flags : %u", node->node_nw_prop.flags);
     if(node->node_nw_prop.is_lb_addr_config){
@@ -154,4 +156,5 @@ node_get_matching_subnet_interface(node_t *node, char *ip_addr){
             return intf;
         }   
     }   
+    return NULL;
 } 

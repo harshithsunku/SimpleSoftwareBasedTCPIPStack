@@ -1,4 +1,5 @@
 #include "network_graph.h"
+#include "communication.h"
 
 graph_t *build_first_topo(){
 #if 0
@@ -41,6 +42,8 @@ graph_t *build_first_topo(){
     node_set_loopback_address(DUT3, "122.1.1.2");
     node_set_intf_ip_address(DUT3, "ethernet 1/1/4", "30.1.1.2", 24);
     node_set_intf_ip_address(DUT3, "ethernet 1/1/6", "40.1.1.2", 24);
+
+    network_start_pkt_receiver_thread(topo);
 
 return topo;
 }
