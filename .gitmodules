@@ -6,3 +6,6 @@
     path = ThreadSafeCLogger
 	url = https://github.com/harshithsunku/ThreadSafeCLogger
 
+[submodule "GenericCShellParserLib"]
+	path = GenericCShellParserLib
+	url = https://github.com/harshithsunku/GenericCShellParserLib
