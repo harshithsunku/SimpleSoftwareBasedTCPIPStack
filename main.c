@@ -3,8 +3,8 @@
 #include "dll.h"
 #include "network_graph.h"
 #include <stdlib.h>
-#include "CommandParser/cmdtlv.h"
-#include "CommandParser/libcli.h"
+#include "cmdtlv.h"
+#include "libcli.h"
 #include "communication.h"
 
 graph_t *topo;
