@@ -102,27 +102,29 @@ void dump_intf_props(interface_t *interface){
 
 void dump_nw_graph(graph_t *graph){
 
-    node_t *node;
-    interface_t *interface;
-    unsigned int i;
-    
-    printf("========================================\n");
-    printf("  Topology Name = %s\n", graph->topology_name);
-    printf("========================================\n");
+	node_t *node = NULL;
+	dll_t *curr = NULL;
+	interface_t *interface;
+	unsigned int i;
 
-    dll_traverse_entry(node, &graph->dll_unit_list, dll_unit, node_t)
-    {
-        dump_node_nw_props(node);
-        for (i = 0; i < MAX_INTF_PER_NODE; i++)
-        {
-            interface = node->intf[i];
-            if (!interface)
-                break;
-            dump_intf_props(interface);
-            printf("    ----------------------------------\n");
-        }
-    }
-    printf("========================================\n");
+	printf("========================================\n");
+	printf("  Topology Name = %s\n", graph->topology_name);
+	printf("========================================\n");
+
+	dll_traverse(&graph->dll_unit_list, curr){
+		node = dll_to_node(curr);
+		dump_node_nw_props(node);
+		for (i = 0; i < MAX_INTF_PER_NODE; i++)
+		{
+			interface = node->intf[i];
+			if (!interface)
+				break;
+			dump_intf_props(interface);
+			printf("    ----------------------------------\n");
+		}
+	}
+
+	printf("========================================\n");
 }
 
 interface_t *

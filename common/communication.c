@@ -79,8 +79,8 @@ _pkt_receive(node_t *receving_node,
 static void *
 _network_start_pkt_receiver_thread(void *arg){
 
-    node_t *node;
-    
+    node_t *node = NULL;
+    dll_t *curr = NULL;
     fd_set active_sock_fd_set,
            backup_sock_fd_set;
     
@@ -96,17 +96,19 @@ _network_start_pkt_receiver_thread(void *arg){
     
     struct sockaddr_in sender_addr;
 
-    dll_traverse_entry(node, &topo->dll_unit_list, dll_unit, node_t)
-    {
+	dll_traverse(&topo->dll_unit_list, curr){
+		node = dll_to_node(curr);
 
-        if (!node->udp_sock_fd)
-            continue;
+		if (!node->udp_sock_fd)
+			continue;
 
-        if (node->udp_sock_fd > sock_max_fd)
-            sock_max_fd = node->udp_sock_fd;
+		if (node->udp_sock_fd > sock_max_fd)
+			sock_max_fd = node->udp_sock_fd;
 
-        FD_SET(node->udp_sock_fd, &backup_sock_fd_set);
-    }
+		FD_SET(node->udp_sock_fd, &backup_sock_fd_set);
+
+	}
+
     while (1)
     {
 
@@ -114,18 +116,18 @@ _network_start_pkt_receiver_thread(void *arg){
 
         select(sock_max_fd + 1, &active_sock_fd_set, NULL, NULL, NULL);
 
-        dll_traverse_entry(node, &topo->dll_unit_list, dll_unit, node_t)
-        {
-            if (FD_ISSET(node->udp_sock_fd, &active_sock_fd_set))
-            {
+		dll_traverse(&topo->dll_unit_list, curr){
+			node = dll_to_node(curr);
+			if (FD_ISSET(node->udp_sock_fd, &active_sock_fd_set))
+			{
 
-                memset(recv_buffer, 0, MAX_PACKET_BUFFER_SIZE);
-                bytes_recvd = recvfrom(node->udp_sock_fd, (char *)recv_buffer,
-                                       MAX_PACKET_BUFFER_SIZE, 0, (struct sockaddr *)&sender_addr, &addr_len);
+				memset(recv_buffer, 0, MAX_PACKET_BUFFER_SIZE);
+				bytes_recvd = recvfrom(node->udp_sock_fd, (char *)recv_buffer,
+						MAX_PACKET_BUFFER_SIZE, 0, (struct sockaddr *)&sender_addr, &addr_len);
 
-                _pkt_receive(node, recv_buffer, bytes_recvd);
-            }
-        }
+				_pkt_receive(node, recv_buffer, bytes_recvd);
+			}
+		}
     }
     return NULL;
 }

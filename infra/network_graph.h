@@ -38,6 +38,8 @@ struct node_ {
     node_nw_prop_t node_nw_prop;
 };
 
+DLL_TO_STRUCT(dll_to_node, node_t, dll_unit);
+
 typedef struct graph_{
 
     char topology_name[32];
@@ -101,16 +103,16 @@ get_node_if_by_name(node_t *node, char *if_name){
 
 static inline node_t *
 get_node_by_node_name(graph_t *topo, char *node_name){
-    node_t *node;
-    dll_traverse_entry(node, &topo->dll_unit_list, dll_unit, node_t)
-    {
-        if (strncmp(node->node_name, node_name, strlen(node_name)) == 0)
-            return node;
-    }
+    node_t *node = NULL;
+	dll_t *curr = NULL;
+	dll_traverse(&topo->dll_unit_list, curr){
+		node = dll_to_node(curr);
+		if (strncmp(node->node_name, node_name, strlen(node_name)) == 0)
+			return node;
+	}
+
     return NULL;
 }
-
-
 
 /*Display Routines*/
 void dump_graph(graph_t *graph);

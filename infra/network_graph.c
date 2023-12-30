@@ -70,15 +70,17 @@ create_graph_node(graph_t *graph, char *node_name){
 }
 
 void dump_graph(graph_t *graph){
-    node_t *node;
+    node_t *node = NULL;
+	dll_t *curr = NULL;
 
     printf("========================================\n");
     printf("  Topology Name = %s\n", graph->topology_name);
     printf("========================================\n");
 
-    dll_traverse_entry(node, &graph->dll_unit_list, dll_unit, node_t){
-        dump_node(node); 
-    }
+	dll_traverse(&graph->dll_unit_list, curr){
+		node = dll_to_node(curr);
+		dump_node(node);
+	}
 
     printf("========================================\n");
 }
